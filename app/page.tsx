@@ -1,4 +1,6 @@
 
+import csv from "csv-parser";
+import fs from 'fs';
 
 interface RecordEntryType {
   id: number;
@@ -7,6 +9,8 @@ interface RecordEntryType {
 }
 
 function csvData() : RecordEntryType[] {
+
+  
 const csvData: RecordEntryType[] = [
 {id: 0 ,date: new Date(2024, 0, 31, 0, 0, 0, 0), count: 3},
 {id: 1 ,date: new Date(2024, 1, 31, 0, 0, 0, 0), count: 12},
@@ -15,10 +19,31 @@ const csvData: RecordEntryType[] = [
 {id: 4 ,date: new Date(2024, 4, 31, 0, 0, 0, 0), count: 469},
 {id: 5 ,date: new Date(2024, 5, 31, 0, 0, 0, 0), count: 569},
 ];
-return csvData
 
+
+fs.createReadStream('public/data.csv')
+  .pipe(csv())
+  .on('data', (data) => {
+    // console.log(data.count)
+    const modifiedData = {
+      id: Number(data.id),
+      date: new Date(data.date),
+      count: Number(data.count),
+    }
+    csvData.push(modifiedData)
+    // console.log(csvData)
+    
+  })
+  .on('end', () => {
+    console.log(csvData)
+  });
+  return csvData
+  
+  
+  
 }
 
+console.log(csvData())
 export default function Home() {
 
 return (
@@ -36,7 +61,14 @@ return (
       </tr>
       </thead>
       <tbody>
-        {csvData()?.map(({id, date, count}) => <Row key={id} date={date} count={count} /> )}
+        {
+          
+        
+        
+        csvData()?.map(({id, date, count}) => <Row key={id} date={date} count={count} /> )
+        
+        
+        }
       </tbody>
     </table>
     </div>
@@ -46,6 +78,7 @@ return (
 }
 
 function Row({ date, count} : { date: Date, count: number}) {
+  // console.log(date, count)
   return (
     <tr>
         <td>{date.toDateString()}</td>
