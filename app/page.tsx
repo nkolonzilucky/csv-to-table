@@ -43,11 +43,26 @@ fs.createReadStream('public/data.csv')
   
 }
 
-console.log(csvData())
-export default function Home() {
 
-return (
-  <>
+export default function Home() {
+  const csvData: RecordEntryType[] = [];
+  fs.createReadStream('public/data.csv')
+  .pipe(csv())
+  .on('data', (data) => {
+    // console.log(data.count)
+    const modifiedData = {
+      id: Number(data.id),
+      date: new Date(data.date),
+      count: Number(data.count),
+    }
+    csvData.push(modifiedData)
+    // console.log(csvData)
+    
+  })
+  .on('end', () => {
+    
+    return (
+      <>
   <div className="flex flex-col items-center min-h-screen justify-center">
 
     <h1>Covid 19 7days forecast</h1>
@@ -62,12 +77,7 @@ return (
       </thead>
       <tbody>
         {
-          
-        
-        
-        csvData()?.map(({id, date, count}) => <Row key={id} date={date} count={count} /> )
-        
-        
+          csvData.map(({id, date, count}) => <Row key={id} date={date} count={count} /> )
         }
       </tbody>
     </table>
@@ -75,6 +85,8 @@ return (
   </div>
   </>
 );
+});
+console.log(csvData)
 }
 
 function Row({ date, count} : { date: Date, count: number}) {
